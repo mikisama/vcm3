@@ -1,0 +1,15 @@
+$bin = @build/hello.elf
+
+mach create
+
+machine LoadPlatformDescription @mps2-an385.repl
+
+showAnalyzer sysbus.cpu.semihosting.uart
+
+sysbus LoadELF $bin
+
+# 开启 GDB Server (默认端口 3333)
+machine StartGdbServer 3333
+
+# 开始运行，注释掉就默认暂停
+# start

@@ -1,0 +1,88 @@
+ENTRY(Reset_Handler)
+
+MEMORY
+{
+    FLASH (rx)  : ORIGIN = 0x00000000, LENGTH = 4M
+    RAM   (rwx) : ORIGIN = 0x20000000, LENGTH = 4M
+}
+
+_estack = ORIGIN(RAM) + LENGTH(RAM);
+
+SECTIONS
+{
+    .isr_vector :
+    {
+        . = ALIGN(4);
+        KEEP(*(.isr_vector))
+    } > FLASH
+
+    .text :
+    {
+        . = ALIGN(4);
+        *(.text*)
+        *(.rodata*)
+        KEEP(*(.init))
+        KEEP(*(.fini))
+        . = ALIGN(4);
+    } > FLASH
+
+    .ARM.extab :
+    {
+        *(.ARM.extab*)
+    } > FLASH
+
+    .ARM.exidx :
+    {
+        *(.ARM.exidx*)
+    } > FLASH
+
+    .preinit_array :
+    {
+        PROVIDE_HIDDEN(__preinit_array_start = .);
+        KEEP(*(.preinit_array*))
+        PROVIDE_HIDDEN(__preinit_array_end = .);
+    } > FLASH
+
+    .init_array :
+    {
+        PROVIDE_HIDDEN(__init_array_start = .);
+        KEEP(*(SORT(.init_array.*)))
+        KEEP(*(.init_array*))
+        PROVIDE_HIDDEN(__init_array_end = .);
+    } > FLASH
+
+    .fini_array :
+    {
+        PROVIDE_HIDDEN(__fini_array_start = .);
+        KEEP(*(SORT(.fini_array.*)))
+        KEEP(*(.fini_array*))
+        PROVIDE_HIDDEN(__fini_array_end = .);
+    } > FLASH
+
+    .data :
+    {
+        . = ALIGN(4);
+        _sdata = .;
+        *(.data*)
+        . = ALIGN(4);
+        _edata = .;
+    } > RAM AT > FLASH
+    _sidata = LOADADDR(.data);
+
+    .bss (NOLOAD) :
+    {
+        . = ALIGN(4);
+        _sbss = .;
+        __bss_start__ = .;
+        *(.bss*)
+        *(COMMON)
+        . = ALIGN(4);
+        _ebss = .;
+        __bss_end__ = .;
+    } > RAM
+
+    . = ALIGN(8);
+    _end = .;
+    end = .;
+    __end__ = .;
+}
